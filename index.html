@@ -1,0 +1,323 @@
+<DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif'; line-height: 1.5;}
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; line-height: 1;}
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# Bitwise operators
+Ryan Gaus
+
+---
+class: center, middle
+# Computers have limited space
+
+--
+class: center, middle
+## These days, we often forget that because the language handles that complexity
+
+---
+# What are these things?
+
+Bitwise operators allow you manage data at the binary level within your program.
+
+---
+# Binary 101
+
+#### Binary
+```
+0b000 = 0
+0b001 = 1
+0b010 = 2
+0b011 = 3
+...
+```
+<hr/>
+#### Decimal
+```
+000
+001
+002
+...
+009
+010
+011
+012
+...
+098
+099
+100
+...
+```
+
+---
+## Integers - Sign bit
+
+`uintn`: Can store from 0 to `2^n - 1`
+
+--
+
+`uint2`: Can store from 0 to 3
+```
+0b00 = 0
+0b01 = 1
+0b10 = 2
+0b11 = 3
+```
+
+`int2`: Can store from -2 to 1
+```
+0b00 = 0
+0b01 = 1
+0b10 = -2
+0b11 = -1
+  ^
+  |
+Sign bit
+```
+
+---
+## Integers - Sign bit
+
+`uint8`: Can store from 0 to 255
+```
+0b00000000 = 0
+0b01111111 = 127
+0b10000000 = 128
+0b11111111 = 255
+```
+
+--
+
+`int8`: Can store from -128 to 127
+```
+0b00000000 = 0
+0b01111111 = 127
+0b10000000 = -128
+0b11111111 = -1
+  ^
+  |
+Sign bit
+```
+
+---
+# Integers - Length
+
+- `uint4` - a "nybble" (0 to 15)
+- `uint8` - a "char" or "byte" (0 to 255)
+- `uint16` - a "short" (0 to 65,535)
+- `uint32` - a "word" (0 to 4,294,967,295)
+- `uint64` - a "long" (0 to 18,446,744,073,709,551,615)
+
+---
+class: center, middle
+#### Poll: When was the last time in javascript you though about how large a value you could store in a Number?
+
+---
+# Number
+
+- Javascript numbers are "double precision floating point"
+  - Previously, we've only talked about integer datatypes
+--
+<br/>
+<br/>
+- Uses scientific notation to represent numbers
+
+![https://mathbitsnotebook.com/Algebra1/Exponents/Scipica.jpg](https://mathbitsnotebook.com/Algebra1/Exponents/Scipica.jpg)
+
+---
+
+class: center, middle
+```
+> Number.MAX_SAFE_INTEGER
+9007199254740991
+```
+
+---
+class: center, middle
+### TL;DR: Javascript Numbers are easy, but don't give you control
+
+--
+### Sometimes you want control
+
+---
+# Bitwise operators
+- Let you perform operations using the raw binary information contained within your numbers.
+- Very fast - computers implment these in hardware.
+
+---
+## Example
+
+```
+> 0b1100 & 0b1111
+12
+```
+
+--
+#### (Javascript console doesn't have a way to nicely print binary numbers)
+
+```
+> 0b1100 & 0b1111
+0b1100
+```
+
+---
+## Bitwise AND
+
+#### If both places in each input are 1, then the output is 1. Else, 0
+
+```
+0b1100 &
+0b1111
+-------------
+0b1100
+```
+
+---
+## Bitwise OR
+
+#### If one place in either of the inputs is 1, then the output is 1. Else, 0
+
+```
+0b1100 |
+0b1111
+-------------
+0b1111
+```
+
+---
+## Uses
+
+### Masking
+"Give me the last 8 bits"
+
+```
+0b110101110110101110010111 &amp; 0b11111111 = 0b10010111
+```
+
+"Combine these two binary numbers together"
+
+```
+0b0001 | 0b0010 = 0b0011
+```
+
+---
+# Example
+```
+const OPTION_FOO = 0b0001;
+const OPTION_BAR = 0b0010;
+const OPTION_BAZ = 0b0100;
+
+const ALL_MY_OPTIONS = OPTION_FOO | OPTION_BAZ;
+
+function myFunc(opts) {
+  const isOptionFooSet = opts &amp; OPTION_FOO &gt; 0;
+  const isOptionBarSet = opts &amp; OPTION_BAR &gt; 0;
+  const isOptionBazSet = opts &amp; OPTION_BAZ &gt; 0;
+
+  console.log("Option status", isOptionFooSet, isOptionBarSet, isOptionBazSet);
+}
+myFunc(ALL_MY_OPTIONS);
+```
+
+---
+# Why do this?
+- Answer: most of the time, you shouldn't.
+- Usually done to minimize size or because they are fast
+  - Network traffic
+  - File permissions
+
+---
+# Real example
+
+```
+$ ls -l
+total 12
+-rw-rw-r-- 1 ryan ryan 4634 Apr 17 06:25 index.html
+-rw-rw-r-- 1 ryan ryan   40 Apr 16 07:41 Makefile
+
+$ chmod 775 Makefile
+
+$ ls -l
+total 12
+-rw-rw-r-- 1 ryan ryan 4634 Apr 17 06:25 index.html
+-rwxrwxr-x 1 ryan ryan   40 Apr 16 07:41 Makefile
+$
+```
+
+--
+<div style="position: absolute; top: 290px; left: 72px; width: 100px; height: 50px; border: 5px solid
+red; border-radius: 30px;"></div>
+---
+class: center, middle
+# 775 -&gt; `rwx rw- r-x` ?
+--
+
+### 7 -&gt; `0b111`
+### 7 -&gt; `0b111`
+### 5 -&gt; `0b101`
+
+--
+## 0b100 is read, 0b010 is write, and 0b001 is Execute
+
+---
+# 775 -&gt; `rwx rw- r-x` ?
+
+```
+const OPTION_READ = 0b100;
+const OPTION_WRITE = 0b010;
+const OPTION_EXECUTE = 0b001;
+
+function canIReadFromFile(permissions) {
+  return permissions &amp; OPTION_READ &gt; 0;
+}
+function canIWriteToFile(permissions) {
+  return permissions &amp; OPTION_WRITE &gt; 0;
+}
+function canIExecuteFile(permissions) {
+  return permissions &amp; OPTION_EXECUTE &gt; 0;
+}
+
+const permissionDigit = 7;
+
+if (canIReadFromFile(permissionDigit)) {
+  console.log('I can read!');
+} else {
+  console.log('I can't read...');
+}
+```
+---
+
+# Summary
+- Bitwise operators are a nice tool
+- Rarely used these days, but...
+- When size or performance is a concern, think about using them.
+--
+<br/>
+<br/>
+- I didn't talk about shifting, bit flipping, or most of the cool stuff you can do due to time.
+- Search for: `bit shifting`, `bitwise not`, `wikipedia bitwise operations`
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js">
+    </script>
+    <script>
+      var slideshow = remark.create();
+    </script>
+  </body>
+</html>
